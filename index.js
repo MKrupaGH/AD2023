@@ -30,7 +30,7 @@ async function getPosts() {
   
   const temp  = Math.round(response.main.temp)
   
-  const date = moment().format("DD/MM/YYYY HH:mm:ss")
+  const date = moment(response.dt*1000).format("DD/MM/YYYY HH:mm:ss")
 
   const post = new Post({
     temp: temp,
