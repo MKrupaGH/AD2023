@@ -1,0 +1,19 @@
+{
+  "name": "ad2023",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "moment": "^2.29.4",
+    "mongodb": "^5.4.0",
+    "mongoose": "^7.1.0",
+    "node-fetch": "^3.3.1"
+  }
+}
