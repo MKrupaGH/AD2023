@@ -42,5 +42,5 @@ async function getPosts() {
   post.save()
 
 }
-
+getPosts();
 setInterval(getPosts,1000*60*60);
