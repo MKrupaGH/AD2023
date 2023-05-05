@@ -28,9 +28,11 @@ async function getPosts() {
 
   const response = await weatherInfo.json();
   
-  const temp  = Math.round(response.main.temp)
-  
-  const date = moment(response.dt*1000).format("DD/MM/YYYY HH:mm:ss")
+  const temp = Math.round(response.main.temp);
+
+  const dateUTC0 = new Date().getTime()
+  const currentTime = new Date(dateUTC0+2*60*60*1000)
+  const date = moment(currentTime).format("DD/MM/YYYY HH:mm:ss");
 
   const post = new Post({
     temp: temp,
