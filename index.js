@@ -10,16 +10,14 @@ mongoose.connect(mongoDB, { useNewUrlParser: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-const infoSchema = new mongoose.Schema(
-  {
-    temp: { type: Number, required: true },
-    hum: { type: Number, required: true },
-    pres: { type: Number, required: true },
-    date:{type: String, required: true}
-  }
-);
+const infoSchema = new mongoose.Schema({
+  temp: { type: Number, required: true },
+  hum: { type: Number, required: true },
+  pres: { type: Number, required: true },
+  date: { type: String, required: true },
+});
 
-const Post = mongoose.model('Post', infoSchema);
+const Post = mongoose.model("Post", infoSchema);
 
 async function getPosts() {
   const weatherInfo = await fetch(
@@ -27,22 +25,19 @@ async function getPosts() {
   );
 
   const response = await weatherInfo.json();
-  
+
   const temp = Math.round(response.main.temp);
 
-  const dateUTC0 = new Date().getTime()
-  const currentTime = new Date(dateUTC0+2*60*60*1000)
+  const dateUTC0 = new Date().getTime();
+  const currentTime = new Date(dateUTC0 + 2 * 60 * 60 * 1000);
   const date = moment(currentTime).format("DD/MM/YYYY HH:mm:ss");
 
   const post = new Post({
     temp: temp,
     hum: response.main.humidity,
     pres: response.main.pressure,
-    date: date
-  })
+    date: date,
+  });
 
-  post.save()
-
+  post.save();
 }
-getPosts();
-setInterval(getPosts,1000*60*60);
