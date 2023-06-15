@@ -2,11 +2,13 @@ import fetch from "node-fetch";
 import mongoose from "mongoose";
 import moment from "moment/moment.js";
 import express from "express";
-const cors = require("cors");
+import cors from "cors";
 
 let app = express();
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({ origin: "ad2023site-production.up.railway.app", credentials: true })
+);
 const PORT = process.env.PORT || 4000;
 
 const dev_db_url =
