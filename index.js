@@ -2,11 +2,9 @@ import fetch from "node-fetch";
 import mongoose from "mongoose";
 import moment from "moment/moment.js";
 import express from "express";
-import { cors } from "cors";
 
 let app = express();
 app.use(express.json());
-app.use(cors({ origin: true, credentials: true }));
 
 const PORT = process.env.PORT || 4000;
 
