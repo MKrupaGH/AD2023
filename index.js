@@ -6,6 +6,8 @@ import express from "express";
 let app = express();
 app.use(express.json());
 
+const PORT = process.env.PORT || 4000;
+
 const dev_db_url =
   "mongodb+srv://Maryslaw:AD2023@ad2023.dbi6siw.mongodb.net/?retryWrites=true&w=majority";
 const mongoDB = process.env.MONGODB_URI || dev_db_url;
@@ -91,4 +93,4 @@ app.get("/date", async (req, res, next) => {
   }
 });
 
-app.listen(5000, () => console.log("Server is running"));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
