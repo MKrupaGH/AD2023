@@ -5,6 +5,7 @@ import express from "express";
 
 let app = express();
 app.use(express.json());
+app.use(cors({ origin: true, credentials: true }));
 
 const PORT = process.env.PORT || 4000;
 
