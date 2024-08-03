@@ -1,9 +1,9 @@
 import fetch from "node-fetch"
 import mongoose from "mongoose"
-import moment from "moment/moment.js"
 import express from "express"
 import cors from "cors"
 
+import "dotenv/config"
 let app = express()
 app.use(express.json())
 
@@ -35,9 +35,7 @@ app.use(function (req, res, next) {
 
 const PORT = process.env.PORT || 4000
 
-const dev_db_url =
-  "mongodb+srv://marekkrupa:Erasmus2023@datadb.dudqxbg.mongodb.net/?retryWrites=true&w=majority&appName=DataDB"
-const mongoDB = process.env.MONGODB_URI || dev_db_url
+const mongoDB = process.env.MONGODB_URI
 
 mongoose.connect(mongoDB, { useNewUrlParser: true })
 const db = mongoose.connection
@@ -101,7 +99,7 @@ async function getPosts() {
   sensor.save()
 }
 
-setInterval(getPosts, 900000)
+setInterval(() => getPosts(), 900000)
 // app.get("/test", async (req, res, next) => {
 //   try {
 //     const collection = await Post.find();
