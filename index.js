@@ -3,7 +3,12 @@ import mongoose from "mongoose"
 import express from "express"
 import cors from "cors"
 
-import "dotenv/config"
+import dotenv from "dotenv"
+import * as cron from "node-cron"
+dotenv.config({
+  path: ".env",
+})
+
 let app = express()
 app.use(express.json())
 
@@ -99,7 +104,9 @@ async function getPosts() {
   sensor.save()
 }
 
-setInterval(() => getPosts(), 900000)
+cron.schedule("0 */15 * * * *", () => {
+  getPosts()
+})
 // app.get("/test", async (req, res, next) => {
 //   try {
 //     const collection = await Post.find();
