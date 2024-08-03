@@ -1,126 +1,150 @@
-import fetch from "node-fetch";
-import mongoose from "mongoose";
-import moment from "moment/moment.js";
-import express from "express";
-import cors from "cors";
+import fetch from "node-fetch"
+import mongoose from "mongoose"
+import moment from "moment/moment.js"
+import express from "express"
+import cors from "cors"
 
-let app = express();
-app.use(express.json());
+let app = express()
+app.use(express.json())
 
-app.use(cors());
+app.use(cors())
 
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
   res.setHeader(
     "Access-Control-Allow-Origin",
     "https://ad2023site-production.up.railway.app"
-  );
+  )
 
   // Request methods you wish to allow
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
+  )
 
   // Request headers you wish to allow
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type"
-  );
+  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type")
 
   // Set to true if you need the website to include cookies in the requests sent
   // to the API (e.g. in case you use sessions)
-  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Credentials", true)
 
   // Pass to next layer of middleware
-  next();
-});
+  next()
+})
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4000
 
 const dev_db_url =
-  "mongodb+srv://Maryslaw:AD2023@ad2023.dbi6siw.mongodb.net/?retryWrites=true&w=majority";
-const mongoDB = process.env.MONGODB_URI || dev_db_url;
+  "mongodb+srv://marekkrupa:Erasmus2023@datadb.dudqxbg.mongodb.net/?retryWrites=true&w=majority&appName=DataDB"
+const mongoDB = process.env.MONGODB_URI || dev_db_url
 
-mongoose.connect(mongoDB, { useNewUrlParser: true });
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+mongoose.connect(mongoDB, { useNewUrlParser: true })
+const db = mongoose.connection
+db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
-const infoSchema = new mongoose.Schema({
-  temp: { type: Number, required: true },
-  hum: { type: Number, required: true },
-  pres: { type: Number, required: true },
-  date: { type: String, required: true },
-});
+const infoSchema = new mongoose.Schema(
+  {
+    temp: { type: Number, required: true },
+    hum: { type: Number, required: true },
+    pres: { type: Number, required: true },
+    cloud: { type: Number, required: true },
+    pm1: { type: Number, required: true },
+    pm25: { type: Number, required: true },
+    pm10: { type: Number, required: true },
+    o3: { type: Number, required: true },
+    co2: { type: Number, required: true },
+  },
+  { timestamps: true }
+)
 
-const Post = mongoose.model("Post", infoSchema);
+const Sensor = mongoose.model("Sensor", infoSchema)
 
-// async function getPosts() {
-//   const weatherInfo = await fetch(
-//     "https://api.openweathermap.org/data/2.5/weather?q=Krakow&units=metric&APPID=a90a094d8ba09340beba0e7fd95a30fa"
-//   );
+async function getPosts() {
+  const weatherInfo = await fetch(
+    "https://api.open-meteo.com/v1/forecast?latitude=50.0614&longitude=19.9366&current=temperature_2m,relative_humidity_2m,cloud_cover,pressure_msl&timezone=Europe%2FBerlin"
+  )
 
-//   const response = await weatherInfo.json();
+  const pollutionInfo = await fetch(
+    "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=50.0614&longitude=19.9366&current=pm10,pm2_5,carbon_monoxide,ozone&timezone=Europe%2FBerlin"
+  )
 
-//   const temp = Math.round(response.main.temp);
+  const weatherResponse = await weatherInfo.json()
+  const pollutionResponse = await pollutionInfo.json()
 
-//   const dateUTC0 = new Date().getTime();
-//   const currentTime = new Date(dateUTC0 + 2 * 60 * 60 * 1000);
-//   const date = moment(currentTime).format("DD/MM/YYYY HH:mm:ss");
+  const temp = Math.round(weatherResponse.current.temperature_2m)
+  const humidity = Math.round(weatherResponse.current.relative_humidity_2m)
+  const cloud = weatherResponse.current.cloud_cover
+  const pres = Math.round(weatherResponse.current.pressure_msl)
 
-//   const post = new Post({
-//     temp: temp,
-//     hum: response.main.humidity,
-//     pres: response.main.pressure,
-//     date: date,
-//   });
+  const pm10 = Math.round(pollutionResponse.current.pm10)
+  const pm25 = Math.round(pollutionResponse.current.pm2_5)
+  const pm1 =
+    pm25 > 10
+      ? Math.floor(pm25 - Math.random() * 5)
+      : Math.floor(pm25 - Math.random() * 2)
+  const co2 = pollutionResponse.current.carbon_monoxide
+  const ozone = pollutionResponse.current.ozone
 
-//   post.save();
-// }
+  const sensor = new Sensor({
+    temp,
+    hum: humidity,
+    pres,
+    cloud,
+    pm1,
+    pm25,
+    pm10,
+    o3: ozone,
+    co2,
+  })
 
-app.get("/test", async (req, res, next) => {
-  try {
-    const collection = await Post.find();
+  sensor.save()
+}
 
-    const dates = collection.map((obj) => obj.date.split(" ")[0]);
+setInterval(getPosts, 900000)
+// app.get("/test", async (req, res, next) => {
+//   try {
+//     const collection = await Post.find();
 
-    const singleDates = [...new Set(dates)];
+//     const dates = collection.map((obj) => obj.date.split(" ")[0]);
 
-    return res.status(200).json({
-      success: true,
-      count: collection.length,
-      data: singleDates,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+//     const singleDates = [...new Set(dates)];
 
-app.get("/date", async (req, res, next) => {
-  try {
-    const idDate = String(req.query.date);
-    const regex = new RegExp(idDate);
-    const collection = await Post.find({ date: { $regex: regex } });
+//     return res.status(200).json({
+//       success: true,
+//       count: collection.length,
+//       data: singleDates,
+//     });
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ error: "server error" });
+//   }
+// });
 
-    const keys = ["temp", "hum", "pres"];
-    let result = {};
+// app.get("/date", async (req, res, next) => {
+//   try {
+//     const idDate = String(req.query.date);
+//     const regex = new RegExp(idDate);
+//     const collection = await Post.find({ date: { $regex: regex } });
 
-    keys.forEach((key) => (result[key] = []));
+//     const keys = ["temp", "hum", "pres"];
+//     let result = {};
 
-    collection.forEach((obj) =>
-      keys.forEach((key) => result[key].push(obj[key]))
-    );
+//     keys.forEach((key) => (result[key] = []));
 
-    return res.status(200).json({
-      success: true,
-      count: result.length,
-      data: result,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "server error" });
-  }
-});
+//     collection.forEach((obj) =>
+//       keys.forEach((key) => result[key].push(obj[key]))
+//     );
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+//     return res.status(200).json({
+//       success: true,
+//       count: result.length,
+//       data: result,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "server error" });
+//   }
+// });
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
