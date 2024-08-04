@@ -103,8 +103,8 @@ async function getPosts() {
 
   sensor.save()
 }
-
-cron.schedule("0 */15 * * * *", () => {
+getPosts()
+cron.schedule("*/15 * * * *", () => {
   getPosts()
 })
 // app.get("/test", async (req, res, next) => {
