@@ -108,7 +108,10 @@ async function getPosts() {
 app.post("/data", async (req, res, next) => {
   try {
     await getPosts()
-  } catch (error) {}
+    res.status(200).json()
+  } catch (error) {
+    res.status(500).json()
+  }
 })
 // app.get("/test", async (req, res, next) => {
 //   try {
