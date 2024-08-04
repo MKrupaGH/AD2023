@@ -18,7 +18,8 @@ app.use(function (req, res, next) {
   // Website you wish to allow to connect
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://ad2023site-production.up.railway.app"
+    "https://ad2023site-production.up.railway.app",
+    "https://ad2023.onrender.com/"
   )
 
   // Request methods you wish to allow
@@ -103,9 +104,14 @@ async function getPosts() {
 
   sensor.save()
 }
-getPosts()
-cron.schedule("*/15 * * * *", () => {
-  getPosts()
+
+app.post("/data", async (req, res, next) => {
+  try {
+    await getPosts()
+    return res.status(200).json({ success: true })
+  } catch (error) {
+    res.status(500).json({ error: "server error" })
+  }
 })
 // app.get("/test", async (req, res, next) => {
 //   try {
